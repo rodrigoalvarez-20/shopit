@@ -1,0 +1,7 @@
+<Context>
+	<Resource name="jdbc/datasource_shopit" auth="Container" type="javax.sql.DataSource"
+		maxActive="100" maxIdle="30" maxWait="10000"
+		username="shopit_user" password="shopit_user_$"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost/shopit?serverTimezone=UTC"/>
+</Context>
