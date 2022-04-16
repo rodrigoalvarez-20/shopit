@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 cd ~/shopit
 javac -cp $CATALINA_HOME/lib/javax.ws.rs-api-2.0.1.jar:$CATALINA_HOME/lib/gson-2.3.1.jar:. business/Service.java
