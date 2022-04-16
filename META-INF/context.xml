@@ -1,7 +1,7 @@
 <Context>
 	<Resource name="jdbc/datasource_shopit" auth="Container" type="javax.sql.DataSource"
 		maxActive="100" maxIdle="30" maxWait="10000"
-		username="shopit_user" password="K/\UXG9<a@xn*cQ("
+		username="shopit_user" password="KUXG9axn*cQ("
 		driverClassName="com.mysql.jdbc.Driver"
 		url="jdbc:mysql://localhost/shopit?serverTimezone=UTC"/>
 </Context>
