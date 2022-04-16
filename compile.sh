@@ -9,7 +9,7 @@ sh $CATALINA_HOME/bin/catalina.sh stop
 rm $CATALINA_HOME/webapps/Service.war
 rm -rf $CATALINA_HOME/webapps/Service
 mv Service.war $CATALINA_HOME/webapps
-if [ $1 -eq debug ];
+if [ $1 = debug ];
 then
     sh $CATALINA_HOME/bin/catalina.sh run
 else
