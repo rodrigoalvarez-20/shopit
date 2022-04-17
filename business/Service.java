@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -31,12 +32,7 @@ import com.google.gson.*;
 public class Service {
     private static DataSource pool = null;
     private static Gson g = new Gson();
-    /*
-     * static Gson j = new GsonBuilder()
-     * .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
-     * .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-     * .create();
-     */
+    private static String _TK = "YzJodmNHbDBYM05sY25acFkyVmZaVzVq";
 
     static {
         try {
@@ -156,16 +152,27 @@ public class Service {
                         return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
                     }
                     try {
-                        Algorithm algorithm = Algorithm.HMAC256("YzJodmNHbDBYM05sY25acFkyVmZaVzVq");
+
+                        // Validar la contraseña 
+                        if (!BCrypt.checkpw(u.getPassword(), rs.getString(5))){
+                            res.put("error", "Las credenciales son incorrectas");
+                            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+                        }
+                        
+                        Algorithm algorithm = Algorithm.HMAC256(_TK);
                         String token = JWT.create()
                                 .withClaim("id", rs.getString(1))
                                 .withClaim("name", rs.getString(2))
-                                .withIssuer("shopit")
+                                .withClaim("email", u.getEmail())
+                                .withClaim("rd", new Random().nextInt(100000))
+                                .withIssuer("shopit_service")
                                 .sign(algorithm);
-                        res.put("message", "Generando token");
+                        res.put("message", "Inicio de sesión correcto");
                         res.put("token", token);
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                        return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
+                        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+
                     } catch (JWTCreationException exception) {
                         // Invalid Signing configuration / Couldn't convert Claims.
                         System.out.println(exception.getMessage());
@@ -189,5 +196,7 @@ public class Service {
         }
 
     }
+
+    
 
 }
