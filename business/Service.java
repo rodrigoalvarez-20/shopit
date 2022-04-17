@@ -55,8 +55,12 @@ public class Service {
     @Path("/users/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(Usuario user){
-        System.out.println(user.getEmail());
+    public Response registerUser(String usrStr){
+        
+        Gson g = new Gson();
+        Usuario u = g.fromJson(usrStr, Usuario.class);
+        System.out.println(u.getEmail());
+
         String message = "{\"message\": \"Ok\"}";
         return Response.status(Response.Status.OK)
         .entity(message).build();
