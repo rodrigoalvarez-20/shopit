@@ -310,18 +310,15 @@ public class Service {
 
         try {
             String sqlQuery = "SELECT * FROM products";
-            System.out.println(cat);
             if (cat != null){
-                sqlQuery = sqlQuery.concat(" WHERE category LIKE '%?%'");
+                sqlQuery += " WHERE category LIKE '%" + cat + "%'";
+                
             }
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             System.out.println(stmtProducts);
 
             try {
-                if(cat != null){
-                    stmtProducts.setString(1, cat);
-                }
                 
                 ResultSet rs = stmtProducts.executeQuery();
 
