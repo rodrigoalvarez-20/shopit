@@ -67,7 +67,7 @@ public class Service {
             Map<String,Object> res = new HashMap<>();
             res.put("error", "No puede dejar el email y/o el password en blanco");
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
 
         String message = "{\"message\": \"Ok\"}";
