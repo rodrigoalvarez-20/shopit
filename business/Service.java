@@ -237,7 +237,7 @@ public class Service {
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserProfile(@HeaderParam("Authorization") String auth){
+    public Response getUserProfile(@HeaderParam("Authorization") String auth) throws Exception{
         Map<String, Object> res = new HashMap<>();
 
         res = validateToken(auth);
@@ -246,12 +246,48 @@ public class Service {
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();    
         }
+        int usr_id = Integer.parseInt(res.get("id"));
 
-        //res.put("message", "Ok");
-        //res.put("data", res.get("id"));
-        //res.put("data", res.get("id"));
-        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtUserProfile = null;
+        
+        try {
+            stmtUserProfile = dbConn.prepareStatement("SELECT name, last_name, email, phone, gender FROM users WHERE id = ?");
+            try {
+                stmtUserProfile.setInt(1, usr_id);
+                ResultSet rs = stmtUser.executeQuery();
+                try {
+                    if (!rs.next()) {
+                        res.put("error", "No se ha encontrado informacion del usuario");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
+                    }
+                    
+                    res.put("name", rs.getString(1));
+                    res.put("last_name", rs.getString(2));
+                    res.put("email", rs.getString(3));
+                    res.put("phone", rs.getString(4));
+                    res.put("gender", rs.getString(5));
+
+                    JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                    return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();        
+                       
+                } finally {
+                    rs.close();
+                }
+            } finally {
+                stmtUser.close();
+            }
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtUser.close();
+            dbConn.close();
+        }
+
+
     }
 
 }
