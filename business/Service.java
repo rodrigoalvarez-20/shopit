@@ -126,7 +126,7 @@ public class Service {
         }
     }
 
-    @Post
+    @POST
     @Path("/users/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -161,7 +161,6 @@ public class Service {
                                 .withClaim("id", rs.getString(0))
                                 .withClaim("name", rs.getString(1))
                                 .withIssuer("shopit")
-                                .withExpiresAt(60*60*3)
                                 .sign(algorithm);
                         res.put("message", "Generando token");
                         res.put("token", token);
