@@ -304,7 +304,7 @@ public class Service {
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
         res = new HashMap<>();
-        List<Products> products = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
 
         Connection dbConn = pool.getConnection();
         PreparedStatement stmtProducts = null;
