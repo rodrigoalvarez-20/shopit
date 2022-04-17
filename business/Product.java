@@ -19,7 +19,7 @@ public class Product {
         this.createdAt = createdAt;
     }
 
-    public String getId(){
+    public int getId(){
         return this.id;
     }
 
