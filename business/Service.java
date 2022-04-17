@@ -84,6 +84,7 @@ public class Service {
                     }
 
                     String pwdHsh = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(12));
+                    u.setPassword(pwdHsh);
                     // Registrar el usuario
                     stmtUser = dbConn.prepareStatement("INSERT INTO users VALUES (0,?,?,?,?,?,?");
 
@@ -94,12 +95,17 @@ public class Service {
                     stmtUser.setString(5, u.getPhone());
                     stmtUser.setString(6, u.getGender());
 
-                    stmtUser.executeUpdate();
+                    System.out.println(stmtUser.toString());
 
-                    res.put("message", "Se ha registrado el usuario correctamente");
-                    JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                    return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
-
+                    if (stmtUser.executeUpdate() != 0){
+                        res.put("message", "Se ha registrado el usuario correctamente");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+                    }else{
+                        res.put("error", "No se ha podido registrar el usuario");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+                    }
                 } finally {
                     rs.close();
                 }
@@ -109,7 +115,7 @@ public class Service {
         }catch(Exception ex){
             res.put(("error"), ex.getMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
         }finally {
             stmtUser.close();
             dbConn.close();
