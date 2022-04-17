@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd ~/shopit
-javac -cp $CATALINA_HOME/lib/javax.ws.rs-api-2.0.1.jar:$CATALINA_HOME/lib/gson-2.3.1.jar:$CATALINA_HOME/lib/java-jwt-3.3.0.jar:$CATALINA_HOME/lib/jackson-core-2.9.9.jar:. business/Service.java
+javac -cp $CATALINA_HOME/lib/javax.ws.rs-api-2.0.1.jar:$CATALINA_HOME/lib/gson-2.3.1.jar:$CATALINA_HOME/lib/java-jwt-3.3.0.jar:$CATALINA_HOME/lib/jackson-core-2.13.2.jar:. business/Service.java
 rm WEB-INF/classes/business/*
 cp business/*.class WEB-INF/classes/business/.
 jar cvf Service.war WEB-INF META-INF
