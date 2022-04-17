@@ -29,9 +29,10 @@ public class Utils {
         }
     }
 
-    public Map<String, Object> validateToken(String tk){
+    public Map<String, Object> validateToken(String userToken){
         Map<String, Object> res = new HashMap<>();
-        if(tk == null || tk.isBlank()){
+        System.out.println(userToken);
+        if(userToken == null || userToken.isBlank()){
             res.put(("error"), "Encabezado no encontrado");
             return res;
         }
@@ -41,7 +42,7 @@ public class Utils {
             JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer("shopit_service")
                 .build();
-            DecodedJWT jwt = verifier.verify(tk);
+            DecodedJWT jwt = verifier.verify(userToken);
             
             res.put("data", jwt.getPayload());
             return res;
