@@ -52,7 +52,7 @@ public class Service {
 
     @POST
     @Path("/users/register")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(Usuario user){
         return Response.status(Response.Status.OK)
