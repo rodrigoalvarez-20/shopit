@@ -71,6 +71,10 @@ public class Service {
             System.out.println(verifError.getMessage());
             res.put("error", "Token invalida");
             return res;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            res.put("error", "Ha ocurrido un error al verificar la token");
+            return res;
         }
 
     }
