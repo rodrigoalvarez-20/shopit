@@ -19,4 +19,36 @@ public class Product {
         this.createdAt = createdAt;
     }
 
+    public String getId(){
+        return this.id;
+    }
+
+    public String getImage(){
+        return this.image;
+    }
+
+    public String getSku(){
+        return this.sku;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public double getPrice(){
+        return this.price;
+    }
+
+    public String getCategory(){
+        return this.category;
+    }
+
+    public int getStock(){
+        return this.stock;
+    }
+
+    public Date getCreatedAt(){
+        return this.createdAt;
+    }
+
 }

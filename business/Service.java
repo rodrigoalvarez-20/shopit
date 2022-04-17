@@ -8,7 +8,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.FormDataParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.core.HttpHeaders;
@@ -34,7 +33,10 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.google.gson.*;
 
-import org.glassfish.jersey.media.multipart;
+import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
+import java.util.UUID;
 
 //URL del sistema: http://localhost:8080/shopit/api
 
@@ -357,11 +359,9 @@ public class Service {
 
     @POST
     @Path("/products/add")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addNewProduct(@FormDataParam("file") InputStream uploadedInputStream,
-        @FormDataParam("file") FormDataContentDisposition fileDetails, 
-        @HeaderParam("Authorization") String auth) throws Exception {
+    public Response addNewProduct(@HeaderParam("Authorization") String auth, String productStr) throws Exception {
         Map<String, Object> res = new HashMap<>();
         res = validateToken(auth);
         if (res.containsKey("error")) {
@@ -369,7 +369,34 @@ public class Service {
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
         res = new HashMap<>();
-        System.out.println(fileDetails.getFileName());
+        Product prod = g.fromJson(productStr, Product.class);
+
+        if(prod.getImage() != null || prod.getImage().contains("data:image")){
+            String[] image_parts = prod.getImage().split(",");
+            String extension;
+            switch (image_parts[0]) {
+                case "data:image/jpeg;base64":
+                    extension = ".jpeg";
+                    break;
+                case "data:image/png;base64":
+                    extension = ".png";
+                    break;
+                default:
+                    extension = ".jpg";
+                    break;
+            }
+            // convert base64 string to binary data
+            byte[] data = DatatypeConverter.parseBase64Binary(image_parts[1]);
+            String fileName = UUID.randomUUID().toString();
+            String path = "/usr/local/apache-tomcat-8.5.78/webapps/ROOT/" + fileName + extension;
+            File file = new File(path);
+            try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
+                outputStream.write(data);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         res.put("message", "File upload");
         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
