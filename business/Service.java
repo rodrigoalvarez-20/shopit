@@ -55,8 +55,8 @@ public class Service {
     @Path("/users/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(Usuario user){
-        System.out.println(user.name);
+    public Response registerUser(String user){
+        System.out.println(user);
         String message = "{\"message\": \"Ok\"}";
         return Response.status(Response.Status.OK)
         .entity(message).build();
