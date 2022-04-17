@@ -16,22 +16,27 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.google.gson.*;
 
 //URL del sistema: http://localhost:8080/shopit/api
-
 
 @Path("/")
 public class Service {
     private static DataSource pool = null;
     private static Gson g = new Gson();
-    /* static Gson j = new GsonBuilder()
-            .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-            .create(); */
+    /*
+     * static Gson j = new GsonBuilder()
+     * .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
+     * .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+     * .create();
+     */
 
     static {
         try {
@@ -48,21 +53,21 @@ public class Service {
     public Response testApi() throws Exception {
         String message = "{\"message\": \"Api correcta\"}";
         return Response
-            .status(Response.Status.OK)
-            .entity(message)
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+                .status(Response.Status.OK)
+                .entity(message)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @POST
     @Path("/users/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(String usrStr) throws Exception{
+    public Response registerUser(String usrStr) throws Exception {
         Usuario u = g.fromJson(usrStr, Usuario.class);
         Map<String, Object> res = new HashMap<>();
 
-        if ( u.getName().equals("") || u.getEmail().equals("") || u.getPassword().equals("")){    
+        if (u.getName().equals("") || u.getEmail().equals("") || u.getPassword().equals("")) {
             res.put("error", "Por favor llene todos los campos");
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
@@ -77,7 +82,7 @@ public class Service {
                 stmtUser.setString(1, u.getEmail());
                 ResultSet rs = stmtUser.executeQuery();
                 try {
-                    if (rs.next()){
+                    if (rs.next()) {
                         res.put("error", "El email ya ha sido registrado");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                         return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
@@ -95,31 +100,95 @@ public class Service {
                     stmtUser.setString(5, u.getPhone());
                     stmtUser.setString(6, u.getGender());
 
-                    System.out.println(stmtUser.toString());
-
-                    if (stmtUser.executeUpdate() != 0){
+                    if (stmtUser.executeUpdate() != 0) {
                         res.put("message", "Se ha registrado el usuario correctamente");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                         return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
-                    }else{
+                    } else {
                         res.put("error", "No se ha podido registrar el usuario");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString())
+                                .build();
+                    }
+                } finally {
+                    rs.close();
+                }
+            } finally {
+                stmtUser.close();
+            }
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtUser.close();
+            dbConn.close();
+        }
+    }
+
+    @Post
+    @Path("/users/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response loginUser(String usrStr) throws Exception {
+        Usuario u = g.fromJson(usrStr, Usuario.class);
+        Map<String, Object> res = new HashMap<>();
+
+        if (u.getEmail().equals("") || u.getPassword().equals("")) {
+            res.put("error", "Las credenciales son incorrectas");
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+
+        // Verificar que el email si exista
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtUser = null;
+
+        try {
+            stmtUser = dbConn.prepareStatement("SELECT * FROM users WHERE email = ?");
+            try {
+                stmtUser.setString(1, u.getEmail());
+                ResultSet rs = stmtUser.executeQuery();
+                try {
+                    if (!rs.next()) {
+                        res.put("error", "El usuario no existe");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
+                    }
+                    try {
+                        Algorithm algorithm = Algorithm.HMAC256("YzJodmNHbDBYM05sY25acFkyVmZaVzVq");
+                        String token = JWT.create()
+                                .withClaim("id", rs.getString(0))
+                                .withClaim("name", rs.getString(1))
+                                .withIssuer("shopit")
+                                .withExpiresAt(60*60*3)
+                                .sign(algorithm);
+                        res.put("message", "Generando token");
+                        res.put("token", token);
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
+                    } catch (JWTCreationException exception) {
+                        // Invalid Signing configuration / Couldn't convert Claims.
+                        System.out.println(exception.getMessage());
+                        res.put(("error"), "Ha ocurrido un error al crear la token");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
                     }
                 } finally {
                     rs.close();
                 }
-            }finally {
+            } finally {
                 stmtUser.close();
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             res.put(("error"), ex.getMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
-        }finally {
+        } finally {
             stmtUser.close();
             dbConn.close();
         }
+
     }
 
 }
