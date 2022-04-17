@@ -276,18 +276,20 @@ public class Service {
                     rs.close();
                 }
             } finally {
-                stmtUser.close();
+                stmtUserProfile.close();
             }
         } catch (Exception ex) {
             res.put(("error"), ex.getMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
         } finally {
-            stmtUser.close();
+            stmtUserProfile.close();
             dbConn.close();
         }
 
 
     }
+
+
 
 }
