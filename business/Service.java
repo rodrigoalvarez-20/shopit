@@ -10,7 +10,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.HeaderParam;
-//import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 
 
@@ -22,6 +21,7 @@ import javax.naming.InitialContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -264,6 +264,9 @@ public class Service {
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                         return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
                     }
+
+                    res.remove("id");
+                    res.remove("message");
                     
                     res.put("name", rs.getString(1));
                     res.put("last_name", rs.getString(2));
@@ -288,10 +291,66 @@ public class Service {
             stmtUserProfile.close();
             dbConn.close();
         }
-
-
     }
 
+    @GET
+    @Path("/products")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProducts(@QueryParam("category") String cat){
+        Map<String, Object> res = new HashMap<>();
+        res = validateToken(auth);
+        if (res.containsKey("error")) {
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+        res = new HashMap<>();
+        List<Products> products = new ArrayList<>();
 
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtProducts = null;
 
+        try {
+            String sqlQuery = "SELECT * FROM products";
+            if (cat != null){
+                sqlQuery += " WHERE category LIKE '%?%'";
+            }
+            stmtProducts = dbConn.prepareStatement(sqlQuery);
+
+            try {
+                if(cat != null){
+                    stmtProducts.setString(1, cat);
+                }
+
+                ResultSet rs = stmtProducts.executeQuery();
+
+                while(rs.next()){
+                    products.add(new Product(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getDouble(5),
+                        rs.getString(6),
+                        rs.getInt(7),
+                        rs.getDate(8)
+                    ));
+                }
+                
+                String productsList = new Gson().toJson(products);
+                return Response.status(Response.Status.OK).entity(productsList).build();
+
+            }finally {
+                stmtProducts.close();
+            }
+
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtProducts.close();
+            dbConn.close();
+        }
+
+    }
 }
