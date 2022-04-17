@@ -4,10 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.*;
 
 public class Utils {
     private final String _TK = "YzJodmNHbDBYM05sY25acFkyVmZaVzVq";
