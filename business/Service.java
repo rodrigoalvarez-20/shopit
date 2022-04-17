@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.core.HttpHeaders;
 
+import java.io.InputStream;
 import java.sql.*;
 import javax.sql.DataSource;
 import javax.naming.Context;
@@ -31,6 +32,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.google.gson.*;
+
+import org.glassfish.jersey.media.multipart;
 
 //URL del sistema: http://localhost:8080/shopit/api
 
@@ -316,8 +319,6 @@ public class Service {
             }
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
-            System.out.println(stmtProducts);
-
             try {
                 
                 ResultSet rs = stmtProducts.executeQuery();
@@ -352,4 +353,25 @@ public class Service {
         }
 
     }
+
+    @POST
+    @Path("/products/add")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addNewProduct(@FormDataParam("file") InputStream uploadedInputStream,
+    @FormDataParam("file") FormDataContentDisposition fileDetails) throws Exception{
+        Map<String, Object> res = new HashMap<>();
+        res = validateToken(auth);
+        if (res.containsKey("error")) {
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+        res = new HashMap<>();
+        System.out.println(fileDetails.getFileName());
+
+        res.put("message", "File upload");
+        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+    }
+
 }
