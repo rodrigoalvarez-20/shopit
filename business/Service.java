@@ -56,7 +56,7 @@ public class Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(Usuario user){
-        System.out.println(user);
+        System.out.println(user.getEmail());
         String message = "{\"message\": \"Ok\"}";
         return Response.status(Response.Status.OK)
         .entity(message).build();
