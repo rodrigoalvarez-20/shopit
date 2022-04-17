@@ -53,7 +53,7 @@ public class Service {
     private static Map<String, Object> validateToken(String userToken) {
         Map<String, Object> res = new HashMap<>();
         System.out.println(userToken);
-        if (userToken == null || userToken.isBlank()) {
+        if (userToken == null || userToken.equals("")) {
             res.put(("error"), "Encabezado no encontrado");
             return res;
         }
