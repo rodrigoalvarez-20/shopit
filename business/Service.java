@@ -80,7 +80,7 @@ public class Service {
                     if (rs.next()){
                         res.put("error", "El email ya ha sido registrado");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                        return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes).build();
+                        return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
                     }
 
                     String pwdHsh = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(12));
@@ -93,11 +93,12 @@ public class Service {
                     stmtUser.setString(4, u.getPassword());
                     stmtUser.setString(5, u.getPhone());
                     stmtUser.setString(6, u.getGender());
+
                     stmtUser.executeUpdate();
 
                     res.put("message", "Se ha registrado el usuario correctamente");
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                    return Response.status(Response.Status.OK).entity(jsonRes).build();
+                    return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
 
                 } finally {
                     rs.close();
