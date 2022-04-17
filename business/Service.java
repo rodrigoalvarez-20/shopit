@@ -371,7 +371,7 @@ public class Service {
         res = new HashMap<>();
         Product prod = g.fromJson(productStr, Product.class);
 
-        if(prod.getImage() != null || prod.getImage().contains("data:image")){
+        if(prod.getImage() != null && prod.getImage().contains("data:image")){
             String[] image_parts = prod.getImage().split(",");
             String extension;
             switch (image_parts[0]) {
