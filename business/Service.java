@@ -10,7 +10,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
-import java.io.Console;
 import java.sql.*;
 import javax.sql.DataSource;
 import javax.naming.Context;
@@ -21,8 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.*;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 
 //URL del sistema: http://localhost:8080/shopit/api
 
@@ -86,7 +83,8 @@ public class Service {
                         return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes).build();
                     }
 
-                    String pwdHsh = BCrypt.withDefaults().hashToString(12, u.getPassword().toCharArray());
+                    String pwdHsh = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(12));
+                    System.out.println(pwdHsh);
                     u.setPassword(pwdHsh);
                     // Registrar el usuario
                     stmtUser = dbConn.prepareStatement("INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?");
