@@ -64,8 +64,8 @@ public class Service {
             DecodedJWT jwt = verifier.verify(userToken);
 
             res.put("message", "Ok");
-            res.put("id", jwt.getClaim("id"));
-            res.put("email", jwt.getClaim("email"));
+            res.put("id", jwt.getClaim("id").asInt());
+            res.put("email", jwt.getClaim("email").asString());
             return res;
 
         } catch (JWTVerificationException verifError) {
