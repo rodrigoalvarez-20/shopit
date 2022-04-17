@@ -407,7 +407,7 @@ public class Service {
         PreparedStatement stmtProd = null;
 
         try {
-            stmtProd = dbConn.prepareStatement("INSERT INTO products VALUES (0,?,?,?,?,?,?,DEFAULT");
+            stmtProd = dbConn.prepareStatement("INSERT INTO products VALUES (0,?,?,?,?,?,?,DEFAULT)");
             stmtProd.setString(1, prod.getImage());
             stmtProd.setString(2, prod.getSku());
             stmtProd.setString(3, prod.getName());
