@@ -51,4 +51,28 @@ public class Product {
         return this.createdAt;
     }
 
+    public void setImage(String v){
+        this.image = v;
+    }
+
+    public void setSku(String v){
+        this.sku = v;
+    }
+
+    public void setName(String v){
+        this.name = v;
+    }
+
+    public void setPrice(double v){
+        this.price = v;
+    }
+
+    public void setCategory(String v){
+        this.category = v;
+    }
+
+    public void setStock(int v){
+        this.stock = v;
+    }
+
 }

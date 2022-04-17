@@ -387,16 +387,52 @@ public class Service {
             }
             // convert base64 string to binary data
             byte[] data = DatatypeConverter.parseBase64Binary(image_parts[1]);
-            String fileName = UUID.randomUUID().toString();
-            String path = "/usr/local/apache-tomcat-8.5.78/webapps/ROOT/" + fileName + extension;
+            String fileName = UUID.randomUUID().toString() + extension;
+            String path = "/usr/local/apache-tomcat-8.5.78/webapps/ROOT/" + fileName;
             File file = new File(path);
             try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file))) {
                 outputStream.write(data);
+                prod.setImage(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
+                prod.setImage("product_placeholder.jpeg");
             }
 
+        }else {
+            prod.setImage("product_placeholder.jpeg");
         }
+
+        // Guardar el nuevo producto
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtProd = null;
+
+        try {
+            stmtProd = dbConn.prepareStatement("INSERT INTO products VALUES (0,?,?,?,?,?,?,DEFAULT");
+            stmtProd.setString(1, prod.getImage());
+            stmtProd.setString(2, prod.getSku());
+            stmtProd.setString(3, prod.getName());
+            stmtProd.setDouble(4, prod.getPrice());
+            stmtProd.setString(5, prod.getCategory());
+            stmtProd.setInt(6, prod.getStock());
+            if (stmtProd.executeUpdate() != 0) {
+                res.put("message", "Se ha creado el producto");
+                JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+            } else {
+                res.put("error", "Ha ocurrido un error al crear el producto");
+                JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString())
+                        .build();
+            }
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtProd.close();
+            dbConn.close();
+        }
+
 
         res.put("message", "File upload");
         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
