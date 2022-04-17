@@ -9,6 +9,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+
 
 import java.sql.*;
 import javax.sql.DataSource;
@@ -131,7 +135,7 @@ public class Service {
         Map<String, Object> res = new HashMap<>();
 
         if (u.getEmail().equals("") || u.getPassword().equals("")) {
-            res.put("error", "Las credenciales son incorrectas");
+            res.put("error", "No puede dejar los campos en blanco");
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
@@ -147,7 +151,7 @@ public class Service {
                 ResultSet rs = stmtUser.executeQuery();
                 try {
                     if (!rs.next()) {
-                        res.put("error", "El usuario no existe");
+                        res.put("error", "Las credenciales son incorrectas");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                         return Response.status(Response.Status.NOT_FOUND).entity(jsonRes.toString()).build();
                     }
@@ -197,6 +201,15 @@ public class Service {
 
     }
 
-    
+    @GET
+    @Path("/users/me")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserProfile(@Context HttpHeaders headers){
+        System.out.println(headers);
+        Map<String, Object> res = new HashMap<>();
+        res.put("message", "Ok");
+        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+    }
 
 }
