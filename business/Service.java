@@ -16,7 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 
 import java.sql.*;
 import javax.sql.DataSource;
-import javax.naming.Context;
+//import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import java.util.ArrayList;
