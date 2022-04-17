@@ -61,7 +61,7 @@ public class Service {
     @Path("/users/register")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(String usrStr){
+    public Response registerUser(String usrStr) throws Exception{
         Usuario u = g.fromJson(usrStr, Usuario.class);
         Map<String, Object> res = new HashMap<>();
 
@@ -71,9 +71,8 @@ public class Service {
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
 
-        Connection dbConn = pool.getConnection();
-
         // Verificar que el email no haya sido registrado
+        Connection dbConn = pool.getConnection();
         PreparedStatement stmtUser;
         try {
             stmtUser = dbConn.prepareStatement("SELECT * FROM users WHERE email = ?");
@@ -115,6 +114,7 @@ public class Service {
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }finally {
+            stmtUser.close();
             dbConn.close();
         }
     }
