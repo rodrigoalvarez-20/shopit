@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.core.HttpHeaders;
 
-
 import java.sql.*;
 import javax.sql.DataSource;
 import javax.naming.Context;
@@ -311,16 +310,19 @@ public class Service {
 
         try {
             String sqlQuery = "SELECT * FROM products";
+            System.out.println(cat);
             if (cat != null){
-                sqlQuery += " WHERE category LIKE '%?%'";
+                sqlQuery = sqlQuery.concat(" WHERE category LIKE '%?%'");
             }
             stmtProducts = dbConn.prepareStatement(sqlQuery);
+
+            System.out.println(stmtProducts);
 
             try {
                 if(cat != null){
                     stmtProducts.setString(1, cat);
                 }
-
+                
                 ResultSet rs = stmtProducts.executeQuery();
 
                 while(rs.next()){
