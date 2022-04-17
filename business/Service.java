@@ -432,11 +432,6 @@ public class Service {
             stmtProd.close();
             dbConn.close();
         }
-
-
-        res.put("message", "File upload");
-        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
     }
 
 }
