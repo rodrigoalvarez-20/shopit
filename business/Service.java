@@ -17,6 +17,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.*;
 
 //URL del sistema: http://localhost:8080/shopit/api
@@ -25,10 +28,10 @@ import com.google.gson.*;
 @Path("/")
 public class Service {
     static DataSource pool = null;
-    static Gson j = new GsonBuilder()
+    /* static Gson j = new GsonBuilder()
             .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-            .create();
+            .create(); */
 
     static {
         try {
@@ -59,7 +62,13 @@ public class Service {
         
         Gson g = new Gson();
         Usuario u = g.fromJson(usrStr, Usuario.class);
-        System.out.println(u.getEmail());
+        
+        if (u.getEmail().equals("") || u.getPassword().equals("")){
+            Map<String,Object> res = new HashMap<>();
+            res.put("error", "No puede dejar el email y/o el password en blanco");
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes).build();
+        }
 
         String message = "{\"message\": \"Ok\"}";
         return Response.status(Response.Status.OK)
