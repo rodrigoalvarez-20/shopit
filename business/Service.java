@@ -22,12 +22,15 @@ import java.util.Map;
 
 import com.google.gson.*;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 //URL del sistema: http://localhost:8080/shopit/api
 
 
 @Path("/")
 public class Service {
-    static DataSource pool = null;
+    private static DataSource pool = null;
+    private static Gson g = new Gson();
     /* static Gson j = new GsonBuilder()
             .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -59,15 +62,60 @@ public class Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(String usrStr){
-        
-        Gson g = new Gson();
         Usuario u = g.fromJson(usrStr, Usuario.class);
-        
-        if (u.getEmail().equals("") || u.getPassword().equals("")){
-            Map<String,Object> res = new HashMap<>();
-            res.put("error", "No puede dejar el email y/o el password en blanco");
+        Map<String, Object> res = new HashMap<>();
+
+        if ( u.getName().equals("") || u.getEmail().equals("") || u.getPassword().equals("")){    
+            res.put("error", "Por favor llene todos los campos");
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+
+        Connection dbConn = pool.getConnection();
+
+        // Verificar que el email no haya sido registrado
+        PreparedStatement stmtUser;
+        try {
+            stmtUser = dbConn.prepareStatement("SELECT * FROM users WHERE email = ?");
+            try {
+                stmtUser.setString(1, u.getEmail());
+                ResultSet rs = stmtUser.executeQuery();
+                try {
+                    if (rs.next()){
+                        res.put("error", "El email ya ha sido registrado");
+                        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                        return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes).build();
+                    }
+
+                    String pwdHsh = BCrypt.withDefaults().hashToString(12, u.getPassword().toCharArray());
+                    u.setPassword(pwdHsh);
+                    // Registrar el usuario
+                    stmtUser = dbConn.prepareStatement("INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?");
+
+                    stmtUser.setString(1, u.getName());
+                    stmtUser.setString(2, u.getLastName());
+                    stmtUser.setString(3, u.getEmail());
+                    stmtUser.setString(4, u.getPassword());
+                    stmtUser.setString(5, u.getPhone());
+                    stmtUser.setString(6, u.getGender());
+                    stmtUser.executeUpdate();
+
+                    res.put("message", "Se ha registrado el usuario correctamente");
+                    JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                    return Response.status(Response.Status.OK).entity(jsonRes).build();
+
+                } finally {
+                    rs.close();
+                }
+            }finally {
+                stmtUser.close();
+            }
+        }catch(Exception ex){
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }finally {
+            dbConn.close();
         }
 
         String message = "{\"message\": \"Ok\"}";
