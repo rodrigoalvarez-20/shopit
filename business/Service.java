@@ -73,7 +73,7 @@ public class Service {
 
         // Verificar que el email no haya sido registrado
         Connection dbConn = pool.getConnection();
-        PreparedStatement stmtUser;
+        PreparedStatement stmtUser = null;
         try {
             stmtUser = dbConn.prepareStatement("SELECT * FROM users WHERE email = ?");
             try {
