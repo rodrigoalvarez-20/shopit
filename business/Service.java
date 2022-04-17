@@ -255,7 +255,7 @@ public class Service {
             stmtUserProfile = dbConn.prepareStatement("SELECT name, last_name, email, phone, gender FROM users WHERE id = ?");
             try {
                 stmtUserProfile.setInt(1, usr_id);
-                ResultSet rs = stmtUser.executeQuery();
+                ResultSet rs = stmtUserProfile.executeQuery();
                 try {
                     if (!rs.next()) {
                         res.put("error", "No se ha encontrado informacion del usuario");
