@@ -84,10 +84,8 @@ public class Service {
                     }
 
                     String pwdHsh = BCrypt.hashpw(u.getPassword(), BCrypt.gensalt(12));
-                    System.out.println(pwdHsh);
-                    u.setPassword(pwdHsh);
                     // Registrar el usuario
-                    stmtUser = dbConn.prepareStatement("INSERT INTO users VALUES (0, ?, ?, ?, ?, ?, ?");
+                    stmtUser = dbConn.prepareStatement("INSERT INTO users VALUES (0,?,?,?,?,?,?");
 
                     stmtUser.setString(1, u.getName());
                     stmtUser.setString(2, u.getLastName());
