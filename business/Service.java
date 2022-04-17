@@ -52,7 +52,6 @@ public class Service {
 
     private static Map<String, Object> validateToken(String userToken) {
         Map<String, Object> res = new HashMap<>();
-        System.out.println(userToken);
         if (userToken == null || userToken.equals("")) {
             res.put(("error"), "Encabezado no encontrado");
             return res;
@@ -64,7 +63,9 @@ public class Service {
                     .build();
             DecodedJWT jwt = verifier.verify(userToken);
 
-            res.put("data", jwt.getPayload());
+            res.put("message", "Ok");
+            res.put("id", jwt.getClaim("id"));
+            res.put("email", jwt.getClaim("email"));
             return res;
 
         } catch (JWTVerificationException verifError) {
@@ -246,8 +247,9 @@ public class Service {
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();    
         }
 
-        res.put("message", "Ok");
-        res.put("data", res.get("data"));
+        //res.put("message", "Ok");
+        //res.put("data", res.get("id"));
+        //res.put("data", res.get("id"));
         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
         return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
     }
