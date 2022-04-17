@@ -117,10 +117,6 @@ public class Service {
         }finally {
             dbConn.close();
         }
-
-        String message = "{\"message\": \"Ok\"}";
-        return Response.status(Response.Status.OK)
-        .entity(message).build();
     }
 
 }
