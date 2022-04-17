@@ -246,7 +246,9 @@ public class Service {
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();    
         }
-        int usr_id = Integer.parseInt(res.get("id"));
+
+        String usr_id_str = String.valueOf(res.get("id"));
+        int usr_id = Integer.parseInt(usr_id_str);
 
         Connection dbConn = pool.getConnection();
         PreparedStatement stmtUserProfile = null;
