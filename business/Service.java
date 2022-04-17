@@ -158,8 +158,8 @@ public class Service {
                     try {
                         Algorithm algorithm = Algorithm.HMAC256("YzJodmNHbDBYM05sY25acFkyVmZaVzVq");
                         String token = JWT.create()
-                                .withClaim("id", rs.getString(0))
-                                .withClaim("name", rs.getString(1))
+                                .withClaim("id", rs.getString(1))
+                                .withClaim("name", rs.getString(2))
                                 .withIssuer("shopit")
                                 .sign(algorithm);
                         res.put("message", "Generando token");
