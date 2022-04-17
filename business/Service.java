@@ -296,7 +296,7 @@ public class Service {
     @GET
     @Path("/products")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProducts(@QueryParam("category") String cat){
+    public Response getProducts(@QueryParam("category") String cat, @HeaderParam("Authorization") String auth){
         Map<String, Object> res = new HashMap<>();
         res = validateToken(auth);
         if (res.containsKey("error")) {
