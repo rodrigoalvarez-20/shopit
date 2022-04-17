@@ -10,6 +10,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 
+import java.io.Console;
 import java.sql.*;
 import javax.sql.DataSource;
 import javax.naming.Context;
@@ -52,11 +53,13 @@ public class Service {
 
     @POST
     @Path("/users/register")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(Usuario user){
+        System.out.println(user.name);
+        String message = "{\"message\": \"Ok\"}";
         return Response.status(Response.Status.OK)
-        .entity(j.toJson(user)).build();
+        .entity(message).build();
     }
 
 }
