@@ -10,13 +10,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.core.Context;
+//import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 
 
 import java.sql.*;
 import javax.sql.DataSource;
-//import javax.naming.Context;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import java.util.ArrayList;
@@ -204,8 +204,8 @@ public class Service {
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserProfile(@Context HttpHeaders headers){
-        System.out.println(headers);
+    public Response getUserProfile(@HeaderParam("Authorization") String auth){
+        System.out.println(auth);
         Map<String, Object> res = new HashMap<>();
         res.put("message", "Ok");
         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
