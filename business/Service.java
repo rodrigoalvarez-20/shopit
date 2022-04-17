@@ -24,6 +24,11 @@ import com.google.gson.*;
 @Path("/")
 public class Service {
     static DataSource pool = null;
+    static Gson j = new GsonBuilder()
+            .registerTypeAdapter(byte[].class, new AdaptadorGsonBase64())
+            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+            .create();
+
     static {
         try {
             Context ctx = new InitialContext();
@@ -33,21 +38,25 @@ public class Service {
         }
     }
 
-    static Gson j = new GsonBuilder()
-		.registerTypeAdapter(byte[].class,new AdaptadorGsonBase64())
-		.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
-		.create();
-
     @GET
     @Path("/test")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response testApi() throws Exception {
-        String message = "{\"hello\": \"This is a JSON response\"}";
+        String message = "{\"message\": \"Api correcta\"}";
         return Response
             .status(Response.Status.OK)
             .entity(message)
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
+
+    @POST
+    @Path("/users/register")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response registerUser(Usuario user){
+        return Response.status(Response.Status.OK)
+        .entity(j.toJson(user)).build();
+    }
+
 }

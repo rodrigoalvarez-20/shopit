@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/Users/ralvarez20/Downloads/bcrypt-0.9.0.jar"
+    ],
+    "java.project.sourcePaths": []
+}
