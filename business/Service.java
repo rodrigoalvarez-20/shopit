@@ -450,10 +450,13 @@ public class Service {
 
         // Insertar los datos de la compra
         try {
+
+            
             String query = "INSERT INTO purchases VALUES (0," + usr_id + "," + total_prods + "," + total_purchase
                     + ",DEFAULT)";
-
-            int mRows = stmtPurchase.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            stmtPurchase = dbConn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            
+            int mRows = stmtPurchase.executeUpdate();
             if (mRows == 0) {
                 res.put("error", "Ha ocurrido un error al insertar la informacion de la compra");
                 JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
