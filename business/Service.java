@@ -356,6 +356,67 @@ public class Service {
 
     // Lista de productos asociados a una compra
 
+    @GET
+    @Path("/users/me/purchases/products")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProductsOfPurchase(@HeaderParam("Authorization") String auth, 
+            @QueryParam("purchase") int purchase_id) throws Exception {
+        Map<String, Object> res = new HashMap<>();
+
+        res = validateToken(auth);
+
+        if (res.containsKey("error")) {
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtProductsPurchase = null;
+        res = new HashMap<>();
+        List<Product> products = new ArrayList<>();
+        try {
+            //  ;
+            String query = "SELECT products.*, product_purchases.quantity FROM product_purchases "
+                + "INNER JOIN products ON products.id = product_purchases.id_product "
+                + "INNER JOIN purchases ON purchases.id = product_purchases.id_purchase "
+                + "WHERE id_purchase = ?";
+            stmtProductsPurchase = dbConn.prepareStatement(query);
+            try {
+                stmtProductsPurchase.setInt(1, purchase_id);
+                ResultSet rs = stmtProductsPurchase.executeQuery();
+                try {
+                    while (rs.next()) {
+                        products.add(new Product(
+                                rs.getInt(1),
+                                rs.getString(2),
+                                rs.getString(3),
+                                rs.getString(4),
+                                rs.getDouble(5),
+                                rs.getString(6),
+                                rs.getInt(7),
+                                rs.getDate(8),
+                                rs.getInt(9)
+                            ));
+                    }
+
+                    String productsList = new Gson().toJson(products);
+                    return Response.status(Response.Status.OK).entity(productsList).build();
+
+                } finally {
+                    rs.close();
+                }
+            } finally {
+                stmtProductsPurchase.close();
+            }
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtProductsPurchase.close();
+            dbConn.close();
+        }
+    }
 
     @GET
     @Path("/products")
