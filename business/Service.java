@@ -298,6 +298,65 @@ public class Service {
         }
     }
 
+    // Lista de compras del usuario
+    @GET
+    @Path("/users/me/purchases")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserPurchases(@HeaderParam("Authorization") String auth) throws Exception {
+        Map<String, Object> res = new HashMap<>();
+
+        res = validateToken(auth);
+
+        if (res.containsKey("error")) {
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+
+        String usr_id_str = String.valueOf(res.get("id"));
+        int usr_id = Integer.parseInt(usr_id_str);
+
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtPurchases = null;
+        res = new HashMap<>();
+        List<Purchase> purchases = new ArrayList<>();
+        try {
+            stmtPurchases = dbConn.prepareStatement("SELECT * FROM purchases WHERE id_usuario = ?");
+            try {
+                stmtPurchases.setInt(1, usr_id);
+                ResultSet rs = stmtPurchases.executeQuery();
+                try {
+                    while (rs.next()) {
+                        purchases.add(new Purchase(
+                                rs.getInt(1),
+                                rs.getInt(2),
+                                rs.getInt(3),
+                                rs.getDouble(4),
+                                rs.getDate(5)
+                        ));
+                    }
+
+                    String purchasesList = new Gson().toJson(purchases);
+                    return Response.status(Response.Status.OK).entity(purchasesList).build();
+
+                } finally {
+                    rs.close();
+                }
+            } finally {
+                stmtUserProfile.close();
+            }
+        } catch (Exception ex) {
+            res.put(("error"), ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtUserProfile.close();
+            dbConn.close();
+        }
+    }
+
+    // Lista de productos asociados a una compra
+
+
     @GET
     @Path("/products")
     @Produces(MediaType.APPLICATION_JSON)
@@ -433,5 +492,9 @@ public class Service {
             dbConn.close();
         }
     }
+
+    // Actualizar producto (tal vez)
+
+    // Eliminar producto (Tal vez)
 
 }
