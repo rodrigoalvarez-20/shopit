@@ -196,13 +196,13 @@ public class Service {
                     }
                     try {
 
-                        // Validar la contraseña 
-                        if (!BCrypt.checkpw(u.getPassword(), rs.getString(5))){
+                        // Validar la contraseña
+                        if (!BCrypt.checkpw(u.getPassword(), rs.getString(5))) {
                             res.put("error", "Las credenciales son incorrectas");
                             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
                         }
-                        
+
                         Algorithm algorithm = Algorithm.HMAC256(_TK);
                         String token = JWT.create()
                                 .withClaim("id", rs.getString(1))
@@ -221,7 +221,8 @@ public class Service {
                         System.out.println(exception.getMessage());
                         res.put(("error"), "Ha ocurrido un error al crear la token");
                         JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+                        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString())
+                                .build();
                     }
                 } finally {
                     rs.close();
@@ -243,14 +244,14 @@ public class Service {
     @GET
     @Path("/users/me")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserProfile(@HeaderParam("Authorization") String auth) throws Exception{
+    public Response getUserProfile(@HeaderParam("Authorization") String auth) throws Exception {
         Map<String, Object> res = new HashMap<>();
 
         res = validateToken(auth);
 
-        if(res.containsKey("error")){
+        if (res.containsKey("error")) {
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();    
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
 
         String usr_id_str = String.valueOf(res.get("id"));
@@ -258,9 +259,10 @@ public class Service {
 
         Connection dbConn = pool.getConnection();
         PreparedStatement stmtUserProfile = null;
-        
+
         try {
-            stmtUserProfile = dbConn.prepareStatement("SELECT name, last_name, email, phone, gender FROM users WHERE id = ?");
+            stmtUserProfile = dbConn
+                    .prepareStatement("SELECT name, last_name, email, phone, gender FROM users WHERE id = ?");
             try {
                 stmtUserProfile.setInt(1, usr_id);
                 ResultSet rs = stmtUserProfile.executeQuery();
@@ -273,7 +275,7 @@ public class Service {
 
                     res.remove("id");
                     res.remove("message");
-                    
+
                     res.put("name", rs.getString(1));
                     res.put("last_name", rs.getString(2));
                     res.put("email", rs.getString(3));
@@ -281,8 +283,8 @@ public class Service {
                     res.put("gender", rs.getString(5));
 
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-                    return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();        
-                       
+                    return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+
                 } finally {
                     rs.close();
                 }
@@ -332,8 +334,7 @@ public class Service {
                                 rs.getInt(2),
                                 rs.getInt(3),
                                 rs.getDouble(4),
-                                rs.getDate(5)
-                        ));
+                                rs.getDate(5)));
                     }
 
                     String purchasesList = new Gson().toJson(purchases);
@@ -359,7 +360,7 @@ public class Service {
     @GET
     @Path("/users/me/purchases/products")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProductsOfPurchase(@HeaderParam("Authorization") String auth, 
+    public Response getProductsOfPurchase(@HeaderParam("Authorization") String auth,
             @QueryParam("purchase") int purchase_id) throws Exception {
         Map<String, Object> res = new HashMap<>();
 
@@ -375,11 +376,11 @@ public class Service {
         res = new HashMap<>();
         List<Product> products = new ArrayList<>();
         try {
-            //  ;
+            // ;
             String query = "SELECT products.*, product_purchases.quantity FROM product_purchases "
-                + "INNER JOIN products ON products.id = product_purchases.id_product "
-                + "INNER JOIN purchases ON purchases.id = product_purchases.id_purchase "
-                + "WHERE id_purchase = ?";
+                    + "INNER JOIN products ON products.id = product_purchases.id_product "
+                    + "INNER JOIN purchases ON purchases.id = product_purchases.id_purchase "
+                    + "WHERE id_purchase = ?";
             stmtProductsPurchase = dbConn.prepareStatement(query);
             try {
                 stmtProductsPurchase.setInt(1, purchase_id);
@@ -395,8 +396,7 @@ public class Service {
                                 rs.getString(6),
                                 rs.getInt(7),
                                 rs.getDate(8),
-                                rs.getInt(9)
-                            ));
+                                rs.getInt(9)));
                     }
 
                     String productsList = new Gson().toJson(products);
@@ -418,13 +418,12 @@ public class Service {
         }
     }
 
-
     // Registrar una compra del usuario
     @POST
     @Path("/purchases")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUserPurchase(@HeaderParam("Authorization") String auth, String productsStr) throws Exception{
+    public Response createUserPurchase(@HeaderParam("Authorization") String auth, String productsStr) throws Exception {
         Map<String, Object> res = new HashMap<>();
 
         res = validateToken(auth);
@@ -441,22 +440,21 @@ public class Service {
         PreparedStatement stmtPurchase = null;
         res = new HashMap<>();
 
-        ArrayList<Product> purchaseProds = g.fromJson(productsStr, new TypeToken<ArrayList<Product>>() {}.getType());
+        ArrayList<Product> purchaseProds = g.fromJson(productsStr, new TypeToken<ArrayList<Product>>() {
+        }.getType());
         double total_purchase = 0;
         int total_prods = purchaseProds.size();
-        for(Product p : purchaseProds){
+        for (Product p : purchaseProds) {
             total_purchase += (p.getPrice() * p.getQuantity());
         }
 
         // Insertar los datos de la compra
         try {
-            String query = "INSERT INTO purchases VALUES (0,:id_usr,:t_prods,:total,DEFAULT)";
-            query.replace(":id_usr", usr_id);
-            query.replace(":t_prods", total_prods);
-            query.replace(":total", total_purchase);
+            String query = "INSERT INTO purchases VALUES (0," + usr_id + "," + total_prods + "," + total_purchase
+                    + ",DEFAULT)";
 
             int mRows = stmtPurchase.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-            if(mRows == 0){
+            if (mRows == 0) {
                 res.put("error", "Ha ocurrido un error al insertar la informacion de la compra");
                 JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
@@ -468,23 +466,21 @@ public class Service {
 
                 String baseQuery = "INSERT INTO product_purchases VALUES ";
 
-                for (int i = 0; i < purchaseProds.size(); i++){
-                    baseQuery += "(0, :id_purchase, :id_prod, :quantity)";
-                    if (i != purchaseProds.size()-1){
+                for (int i = 0; i < purchaseProds.size(); i++) {
+                    baseQuery += "(0, " + id_new_purchase + ", " + purchaseProds.get(i).getId() + ","
+                            + purchaseProds.get(i).getQuantity() + ")";
+                    if (i != purchaseProds.size() - 1) {
                         baseQuery += ", ";
                     }
-                    baseQuery.replace(":id_purchase", id_new_purchase);
-                    baseQuery.replace(":id_prod", purchaseProds.get(i).getId());
-                    baseQuery.replace(":quantity", purchaseProds.get(i).getQuantity());
                 }
 
                 stmtPurchase = dbConn.prepareStatement(baseQuery);
 
-                if(stmtPurchase.executeUpdate()){
+                if (stmtPurchase.executeUpdate()) {
                     res.put("message", "Compra guardada correctamente. Disfrute su pedido.");
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
-                }else {
+                } else {
                     res.put("error", "Ha ocurrido un error al registrar los productos de la compra");
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
@@ -500,11 +496,11 @@ public class Service {
         }
     }
 
-
     @GET
     @Path("/products")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProducts(@QueryParam("category") String cat, @HeaderParam("Authorization") String auth) throws Exception{
+    public Response getProducts(@QueryParam("category") String cat, @HeaderParam("Authorization") String auth)
+            throws Exception {
         Map<String, Object> res = new HashMap<>();
         res = validateToken(auth);
         if (res.containsKey("error")) {
@@ -519,33 +515,32 @@ public class Service {
 
         try {
             String sqlQuery = "SELECT * FROM products";
-            if (cat != null){
+            if (cat != null) {
                 sqlQuery += " WHERE category LIKE '%" + cat + "%'";
-                
+
             }
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
-                
+
                 ResultSet rs = stmtProducts.executeQuery();
 
-                while(rs.next()){
+                while (rs.next()) {
                     products.add(new Product(
-                        rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getDouble(5),
-                        rs.getString(6),
-                        rs.getInt(7),
-                        rs.getDate(8)
-                    ));
+                            rs.getInt(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4),
+                            rs.getDouble(5),
+                            rs.getString(6),
+                            rs.getInt(7),
+                            rs.getDate(8)));
                 }
-                
+
                 String productsList = new Gson().toJson(products);
                 return Response.status(Response.Status.OK).entity(productsList).build();
 
-            }finally {
+            } finally {
                 stmtProducts.close();
             }
 
@@ -574,7 +569,7 @@ public class Service {
         res = new HashMap<>();
         Product prod = g.fromJson(productStr, Product.class);
 
-        if(prod.getImage() != null && prod.getImage().contains("data:image")){
+        if (prod.getImage() != null && prod.getImage().contains("data:image")) {
             String[] image_parts = prod.getImage().split(",");
             String extension;
             switch (image_parts[0]) {
@@ -601,7 +596,7 @@ public class Service {
                 prod.setImage("product_placeholder.jpeg");
             }
 
-        }else {
+        } else {
             prod.setImage("product_placeholder.jpeg");
         }
 
@@ -640,7 +635,5 @@ public class Service {
     // Actualizar producto (tal vez)
 
     // Eliminar producto (Tal vez)
-
-
 
 }
