@@ -342,14 +342,14 @@ public class Service {
                     rs.close();
                 }
             } finally {
-                stmtUserProfile.close();
+                stmtPurchases.close();
             }
         } catch (Exception ex) {
             res.put(("error"), ex.getMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
         } finally {
-            stmtUserProfile.close();
+            stmtPurchases.close();
             dbConn.close();
         }
     }
