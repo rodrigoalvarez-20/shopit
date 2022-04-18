@@ -436,9 +436,10 @@ public class Service {
         Connection dbConn = pool.getConnection();
         PreparedStatement stmtProductsPurchase = null;
         res = new HashMap<>();
-        List<Product> products = g.fromJson(productsStr, ArrayList.class);
 
-        for(Product p : products){
+        ArrayList<Product> purchaseProds = g.fromJson(productsStr, new TypeToken<ArrayList<Product>>() {}.getType());
+
+        for(Product p : purchaseProds){
             System.out.println(p.getId() + " " + p.getQuantity());
         }
 
