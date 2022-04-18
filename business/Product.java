@@ -8,6 +8,7 @@ public class Product {
     private double price;
     private Date createdAt;
 
+    // Constructor (Tabla)
     public Product(int id, String image, String sku, String name, double price, String cat, int stock, Date createdAt){
         this.id = id;
         this.image = image;
@@ -19,6 +20,7 @@ public class Product {
         this.createdAt = createdAt;
     }
 
+    // Constructor (Product - Purchases)
     public Product(int id, String image, String sku, String name, double price, String cat, int stock, Date createdAt, int quantity) {
         this.id = id;
         this.image = image;
@@ -28,6 +30,13 @@ public class Product {
         this.category = cat;
         this.stock = stock;
         this.createdAt = createdAt;
+        this.quantity = quantity;
+    }
+
+    // Constructor (Purchase)
+    public Product(int id, double price, int quantity){
+        this.id = id;
+        this.price = price;
         this.quantity = quantity;
     }
 
