@@ -355,7 +355,6 @@ public class Service {
     }
 
     // Lista de productos asociados a una compra
-
     @GET
     @Path("/users/me/purchases/products")
     @Produces(MediaType.APPLICATION_JSON)
@@ -417,6 +416,37 @@ public class Service {
             dbConn.close();
         }
     }
+
+
+    // Registrar una compra del usuario
+    @POST
+    @Path("/purchases")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createUserPurchase(@HeaderParam("Authorization") String auth, String productsStr){
+        Map<String, Object> res = new HashMap<>();
+
+        res = validateToken(auth);
+
+        if (res.containsKey("error")) {
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
+        }
+
+        Connection dbConn = pool.getConnection();
+        PreparedStatement stmtProductsPurchase = null;
+        res = new HashMap<>();
+        List<Product> products = g.fromJson(productsStr, ArrayList.class);
+
+        for(Product p : products){
+            System.out.println(p.getId() + " " + p.getQuantity());
+        }
+
+        res.put("message", "Ok");
+        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+    }
+
 
     @GET
     @Path("/products")
@@ -557,5 +587,7 @@ public class Service {
     // Actualizar producto (tal vez)
 
     // Eliminar producto (Tal vez)
+
+
 
 }
