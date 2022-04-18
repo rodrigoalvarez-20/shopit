@@ -476,7 +476,7 @@ public class Service {
 
                 stmtPurchase = dbConn.prepareStatement(baseQuery);
 
-                if (stmtPurchase.executeUpdate()) {
+                if (stmtPurchase.executeUpdate() != 0) {
                     res.put("message", "Compra guardada correctamente. Disfrute su pedido.");
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
