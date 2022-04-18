@@ -485,6 +485,10 @@ public class Service {
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
                 }
+            }else {
+                res.put("error", "Ha ocurrido un error al registrar la informacion de la compra");
+                JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
             }
         } catch (Exception ex) {
             res.put("error", ex.getMessage());
