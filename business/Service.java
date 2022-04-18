@@ -423,7 +423,7 @@ public class Service {
     @Path("/purchases")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUserPurchase(@HeaderParam("Authorization") String auth, String productsStr){
+    public Response createUserPurchase(@HeaderParam("Authorization") String auth, String productsStr) throws Exception{
         Map<String, Object> res = new HashMap<>();
 
         res = validateToken(auth);
