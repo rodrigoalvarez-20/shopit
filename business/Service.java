@@ -434,19 +434,70 @@ public class Service {
             return Response.status(Response.Status.BAD_REQUEST).entity(jsonRes.toString()).build();
         }
 
+        String usr_id_str = String.valueOf(res.get("id"));
+        int usr_id = Integer.parseInt(usr_id_str);
+
         Connection dbConn = pool.getConnection();
-        PreparedStatement stmtProductsPurchase = null;
+        PreparedStatement stmtPurchase = null;
         res = new HashMap<>();
 
         ArrayList<Product> purchaseProds = g.fromJson(productsStr, new TypeToken<ArrayList<Product>>() {}.getType());
-
+        double total_purchase = 0;
+        int total_prods = purchaseProds.size();
         for(Product p : purchaseProds){
-            System.out.println(p.getId() + " " + p.getQuantity());
+            total_purchase += (p.getPrice() * p.getQuantity());
         }
 
-        res.put("message", "Ok");
-        JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
-        return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
+        // Insertar los datos de la compra
+        try {
+            String query = "INSERT INTO purchases VALUES (0,:id_usr,:t_prods,:total,DEFAULT)";
+            query.replace(":id_usr", usr_id);
+            query.replace(":t_prods", total_prods);
+            query.replace(":total", total_purchase);
+
+            int mRows = stmtPurchase.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            if(mRows == 0){
+                res.put("error", "Ha ocurrido un error al insertar la informacion de la compra");
+                JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+            }
+
+            ResultSet rs = stmtPurchase.getGeneratedKeys();
+            if (rs.next()) {
+                int id_new_purchase = rs.getInt(1);
+
+                String baseQuery = "INSERT INTO product_purchases VALUES ";
+
+                for (int i = 0; i < purchaseProds.size(); i++){
+                    baseQuery += "(0, :id_purchase, :id_prod, :quantity)";
+                    if (i != purchaseProds.size()-1){
+                        baseQuery += ", ";
+                    }
+                    baseQuery.replace(":id_purchase", id_new_purchase);
+                    baseQuery.replace(":id_prod", purchaseProds.get(i).getId());
+                    baseQuery.replace(":quantity", purchaseProds.get(i).getQuantity());
+                }
+
+                stmtPurchase = dbConn.prepareStatement(baseQuery);
+
+                if(stmtPurchase.executeUpdate()){
+                    res.put("message", "Compra guardada correctamente. Disfrute su pedido.");
+                    JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+                }else {
+                    res.put("error", "Ha ocurrido un error al registrar los productos de la compra");
+                    JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+                }
+            }
+        } catch (Exception ex) {
+            res.put("error", ex.getMessage());
+            JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
+        } finally {
+            stmtPurchase.close();
+            dbConn.close();
+        }
     }
 
 
