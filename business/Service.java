@@ -450,8 +450,6 @@ public class Service {
 
         // Insertar los datos de la compra
         try {
-
-            
             String query = "INSERT INTO purchases VALUES (0," + usr_id + "," + total_prods + "," + total_purchase
                     + ",DEFAULT)";
             stmtPurchase = dbConn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -480,6 +478,16 @@ public class Service {
                 stmtPurchase = dbConn.prepareStatement(baseQuery);
 
                 if (stmtPurchase.executeUpdate() != 0) {
+
+                    // Actualizar los valores de stock de los productos
+
+                    for (Product p : purchaseProds){
+                        stmtPurchase = dbConn.prepareStatement("UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?");
+                        stmtPurchase.setString(1, p.getQuantity());
+                        stmtPurchase.setString(2, p.getId());
+                        stmtPurchase.executeUpdate();
+                    }
+
                     res.put("message", "Compra guardada correctamente. Disfrute su pedido.");
                     JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
