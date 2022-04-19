@@ -483,8 +483,8 @@ public class Service {
 
                     for (Product p : purchaseProds){
                         stmtPurchase = dbConn.prepareStatement("UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?");
-                        stmtPurchase.setString(1, p.getQuantity());
-                        stmtPurchase.setString(2, p.getId());
+                        stmtPurchase.setInt(1, p.getQuantity());
+                        stmtPurchase.setInt(2, p.getId());
                         stmtPurchase.executeUpdate();
                     }
 
