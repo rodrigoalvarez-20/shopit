@@ -387,7 +387,6 @@ public class Service {
                 ResultSet rs = stmtProductsPurchase.executeQuery();
                 try {
                     while (rs.next()) {
-                        System.out.println(rs.toString());
                         products.add(new Product(
                                 rs.getInt(1),
                                 rs.getString(2),
@@ -536,7 +535,6 @@ public class Service {
                 sqlQuery += " WHERE name LIKE '%" + name + "%'";
 
             }
-            System.out.println(sqlQuery);
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
@@ -544,7 +542,6 @@ public class Service {
                 ResultSet rs = stmtProducts.executeQuery();
 
                 while (rs.next()) {
-                    System.out.println(rs.toString());
                     products.add(new Product(
                             rs.getInt(1),
                             rs.getString(2),
@@ -623,6 +620,7 @@ public class Service {
 
         // Guardar el nuevo producto
         Connection dbConn = pool.getConnection();
+        dbConn.setAutoCommit(false);
         PreparedStatement stmtProd = null;
 
         try {
@@ -634,16 +632,19 @@ public class Service {
             stmtProd.setString(5, prod.getCategory());
             stmtProd.setInt(6, prod.getStock());
             if (stmtProd.executeUpdate() != 0) {
+                dbConn.commit();
                 res.put("message", "Se ha creado el producto");
                 JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                 return Response.status(Response.Status.OK).entity(jsonRes.toString()).build();
             } else {
+                dbConn.rollback();
                 res.put("error", "Ha ocurrido un error al crear el producto");
                 JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString())
                         .build();
             }
         } catch (Exception ex) {
+            dbConn.rollback();
             res.put(("error"), ex.getMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
