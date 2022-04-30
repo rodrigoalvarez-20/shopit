@@ -536,7 +536,7 @@ public class Service {
 
             }
             Logger log = new Logger();
-            log.log("info", sqlQuery);
+            log.log("INFO", sqlQuery);
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
