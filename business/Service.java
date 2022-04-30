@@ -387,6 +387,7 @@ public class Service {
                 ResultSet rs = stmtProductsPurchase.executeQuery();
                 try {
                     while (rs.next()) {
+                        System.out.println(rs.toString());
                         products.add(new Product(
                                 rs.getInt(1),
                                 rs.getString(2),
