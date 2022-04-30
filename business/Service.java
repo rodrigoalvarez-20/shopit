@@ -38,7 +38,6 @@ import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 //URL del sistema: http://localhost:8080/shopit/api
 
@@ -393,11 +392,12 @@ public class Service {
                                 rs.getString(2),
                                 rs.getString(3),
                                 rs.getString(4),
-                                rs.getDouble(5),
-                                rs.getString(6),
-                                rs.getInt(7),
-                                rs.getDate(8),
-                                rs.getInt(9)));
+                                rs.getString(5),
+                                rs.getDouble(6),
+                                rs.getString(7),
+                                rs.getInt(8),
+                                rs.getDate(9),
+                                rs.getInt(10)));
                     }
 
                     String productsList = new Gson().toJson(products);
@@ -535,8 +535,7 @@ public class Service {
                 sqlQuery += " WHERE name LIKE '%" + name + "%'";
 
             }
-            Logger log = new Logger();
-            log.log("INFO", sqlQuery);
+            System.out.println(sqlQuery);
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
