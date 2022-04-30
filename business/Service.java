@@ -561,6 +561,7 @@ public class Service {
             }
 
         } catch (Exception ex) {
+            System.out.println(ex.getStackTrace());
             res.put(("error"), ex.getLocalizedMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
