@@ -622,9 +622,9 @@ public class Service {
         Connection dbConn = pool.getConnection();
         dbConn.setAutoCommit(false);
         PreparedStatement stmtProd = null;
-
         try {
             stmtProd = dbConn.prepareStatement("INSERT INTO products VALUES (0,?,?,?,?,?,?,?,DEFAULT)");
+            System.out.println(prod.toString());
             stmtProd.setString(1, prod.getImage());
             stmtProd.setString(2, prod.getSku());
             stmtProd.setString(3, prod.getName());
