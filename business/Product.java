@@ -4,16 +4,17 @@ import java.util.Date;
 
 public class Product {
     private int id, stock, quantity;
-    private String image, sku, name, category;
+    private String image, sku, name, category, description;
     private double price;
     private Date createdAt;
 
     // Constructor (Tabla)
-    public Product(int id, String image, String sku, String name, double price, String cat, int stock, Date createdAt){
+    public Product(int id, String image, String sku, String name, String description, double price, String cat, int stock, Date createdAt){
         this.id = id;
         this.image = image;
         this.sku = sku;
         this.name = name;
+        this.description = description;
         this.price = price;
         this.category = cat;
         this.stock = stock;
@@ -21,11 +22,12 @@ public class Product {
     }
 
     // Constructor (Product - Purchases)
-    public Product(int id, String image, String sku, String name, double price, String cat, int stock, Date createdAt, int quantity) {
+    public Product(int id, String image, String sku, String name, String description, double price, String cat, int stock, Date createdAt, int quantity) {
         this.id = id;
         this.image = image;
         this.sku = sku;
         this.name = name;
+        this.description = description;
         this.price = price;
         this.category = cat;
         this.stock = stock;
@@ -54,6 +56,10 @@ public class Product {
 
     public String getName(){
         return this.name;
+    }
+
+    public String getDescription(){
+        return this.description;
     }
 
     public double getPrice(){
@@ -86,6 +92,10 @@ public class Product {
 
     public void setName(String v){
         this.name = v;
+    }
+
+    public void setDescription(String v){
+        this.description = v;
     }
 
     public void setPrice(double v){
