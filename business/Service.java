@@ -38,6 +38,7 @@ import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 //URL del sistema: http://localhost:8080/shopit/api
 
@@ -534,7 +535,8 @@ public class Service {
                 sqlQuery += " WHERE name LIKE '%" + name + "%'";
 
             }
-            System.out.println(sqlQuery);
+            Logger log = new Logger();
+            log.log("info", sqlQuery);
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
