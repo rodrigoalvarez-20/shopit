@@ -514,7 +514,7 @@ public class Service {
     @GET
     @Path("/products")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getProducts(@QueryParam("category") String cat, @HeaderParam("Authorization") String auth)
+    public Response getProducts(@QueryParam("name") String name, @HeaderParam("Authorization") String auth)
             throws Exception {
         Map<String, Object> res = new HashMap<>();
         res = validateToken(auth);
@@ -530,8 +530,8 @@ public class Service {
 
         try {
             String sqlQuery = "SELECT * FROM products";
-            if (cat != null) {
-                sqlQuery += " WHERE category LIKE '%" + cat + "%'";
+            if (name != null) {
+                sqlQuery += " WHERE name LIKE '%" + name + "%'";
 
             }
             stmtProducts = dbConn.prepareStatement(sqlQuery);
@@ -546,10 +546,11 @@ public class Service {
                             rs.getString(2),
                             rs.getString(3),
                             rs.getString(4),
-                            rs.getDouble(5),
-                            rs.getString(6),
-                            rs.getInt(7),
-                            rs.getDate(8)));
+                            rs.getString(5),
+                            rs.getDouble(6),
+                            rs.getString(7),
+                            rs.getInt(8),
+                            rs.getDate(9)));
                 }
 
                 String productsList = new Gson().toJson(products);
@@ -560,7 +561,7 @@ public class Service {
             }
 
         } catch (Exception ex) {
-            res.put(("error"), ex.getMessage());
+            res.put(("error"), ex.getLocalizedMessage());
             JsonObject jsonRes = g.toJsonTree(res).getAsJsonObject();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonRes.toString()).build();
         } finally {
