@@ -628,10 +628,10 @@ public class Service {
             stmtProd.setString(1, prod.getImage());
             stmtProd.setString(2, prod.getSku());
             stmtProd.setString(3, prod.getName());
-            stmtProd.setString(3, prod.getDescription());
-            stmtProd.setDouble(4, prod.getPrice());
-            stmtProd.setString(5, prod.getCategory());
-            stmtProd.setInt(6, prod.getStock());
+            stmtProd.setString(4, prod.getDescription());
+            stmtProd.setDouble(5, prod.getPrice());
+            stmtProd.setString(6, prod.getCategory());
+            stmtProd.setInt(7, prod.getStock());
             if (stmtProd.executeUpdate() != 0) {
                 dbConn.commit();
                 res.put("message", "Se ha creado el producto");
