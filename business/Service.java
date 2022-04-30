@@ -534,6 +534,7 @@ public class Service {
                 sqlQuery += " WHERE name LIKE '%" + name + "%'";
 
             }
+            System.out.println(sqlQuery);
             stmtProducts = dbConn.prepareStatement(sqlQuery);
 
             try {
@@ -541,6 +542,7 @@ public class Service {
                 ResultSet rs = stmtProducts.executeQuery();
 
                 while (rs.next()) {
+                    System.out.println(rs.toString());
                     products.add(new Product(
                             rs.getInt(1),
                             rs.getString(2),
